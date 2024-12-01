@@ -1,7 +1,5 @@
 # --- Day 1: Historian Hysteria ---
 
-# import os
-
 def day01_a(input):
     file = open(input, "r")
 
@@ -27,3 +25,28 @@ def day01_a(input):
 
 
 day01_a("day01_input.txt")
+
+def day01_b(input):
+    file = open(input, "r")
+
+    left = []
+    right = []
+
+    for line in file:
+        line = line.split('   ')
+        left.append(int(line[0]))
+        right.append(int(line[1].split('\n')[0]))
+    
+    file.close()
+
+    similarity = 0
+    count = 0
+    for left_item in left:
+        for right_item in right:
+            if left_item == right_item:
+                count += 1
+        similarity += left_item * count
+        count = 0
+    print(similarity)
+
+day01_b("day01_input.txt")
