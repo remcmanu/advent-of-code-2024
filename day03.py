@@ -1,101 +1,65 @@
 # --- Day 3: Mull It Over ---
 
 def day03_a (input):
-    file = open(input, "r")
+    with open(input, "r") as file:
 
+        result = 0
 
-    result = 0
-    for line in file:
-        start = None # start of a potential mul sequence
-        current = 0 # character being analyzed currently
-        multiplier = None
-        multiplicand = None
+        for line in file:
+            start = None        # index of the m character in a potential mul(X,Y) sequence
+            multiplier = None   # left hand # of mul
+            multiplicand = None # right hand # of mul
 
-        for i in range(len(line)):
-            
-            char = line[i]
-            print ("[ " + str(i) + " ]" + " CHAR IS: " + char)
-            
-            # skip if char not m and not in sequence
-            if start == None and char != 'm':
-                print (char + " SKIP")
-                continue
-            # starting new sequence
-            if start == None and char == 'm':
-                start = i
-                current = i + 1
-                print (char + " m")
-                continue
-            # currently in a sequence
-            if start != None:
-                match char:
-                    # is u
-                    case 'u':
-                        if line[current - 1] != 'm':
-                            start = current = multiplier = multiplicand = None
-                            print (char + " u")
+            for i, char in enumerate(line):
+                # start a sequence when not in one and m character appears
+                if start == None and char == 'm':
+                    start = i
+                elif start != None:
+                    # if character is 'u' and expression is currently 'm'
+                    if char == 'u' and line[start:i] == 'm':
+                        continue
+                    # if character is 'l' and expression is currently 'mu'
+                    if char == 'l' and line[start:i] == 'mu':
+                        continue
+                    # if character is '(' and expression is currently 'mul'
+                    if char == '(' and line[start:i] == 'mul':
+                        multiplier = multiplicand = ""
+                        continue
+                    # if character is a digit and expression is currently 'mul(', start a new multiplier
+                    if char.isdigit() and line[start:i] == 'mul(' + multiplier:
+                        multiplier += char
+                        continue
+                    # if character is a ','
+                    if char == ',': 
+                        #  and expression matches as it should
+                        if multiplier != None and line[start:i] == 'mul(' + multiplier:
                             continue
-                    # is l
-                    case 'l':
-                        if line[current - 1] != 'u':
-                            start = current = multiplier = multiplicand = None
-                            print (char + " l")
-                            continue
-                    # is (
-                    case '(':
-                        if line[current - 1] != 'l':
-                            start = current = multiplier = multiplicand = None
-                            print (char + " (")
-                            continue
-                    # is number
-                    case str(char) if char.isdigit():
-                        print ("IS INT")
-                        # is first digit of multiplier
-                        if line[current - 1] == '(':
-                            multiplier = int(char)
-                        # is first digit of multiplicand
-                        elif line[current - 1] == ',':
-                            multiplicand = int(char)
-                        # is another digit of multiplicand
-                        elif multiplicand != None:
-                            multiplicand = multiplicand * 10 + int(char)
-                        # is another digit of multiplier
-                        elif multiplicand == None and multiplier != None:
-                            multiplier = multiplier * 10 + int(char)
+                        # if you have ',' before multiplier is set, it'll throw error
+                        # TypeError: can only concatenate str (not "NoneType") to str
                         else:
-                            start = current = multiplier = multiplicand = None
+                            print("FAILED: [" + char + "] " + line[start:i + 1])
+                            start = multiplier = multiplicand = None
+                    # if character is a digit and expression matches as it should, starta new multiplicand
+                    if char.isdigit() and line[start:i] == 'mul(' + multiplier + ',' + multiplicand:
+                        multiplicand += char
+                        continue
+                    # if character is a ')'
+                    if char == ')':
+                        # and expression matches as it should, do the math and reset
+                        if multiplier != None and multiplicand != None and line[start:i] == 'mul(' + multiplier + ',' + multiplicand:
+                            result += int(multiplier) * int(multiplicand)
+                            print("MULTIPLIED: " + line[start:i + 1])
+                            start = multiplier = multiplicand = None
                             continue
-                    # is ,
-                    case ',':
-                        print (char + " ,")
-                        # if not after number
-                        if not line[current - 1].isnumeric():
-                            start = current = multiplier = multiplicand = None
-                            continue
-                        # if multiplicand was number preceding
-                        elif multiplicand != None:
-                            start = current = multiplier = multiplicand = None
-                            continue
-                    # is )
-                    case ')':
-                        print (char + ' )')
-                        # if not after number
-                        if not line[current - 1].isnumeric():
-                            start = current = multiplier = multiplicand = None
-                            continue
-                        # if multiplicand was not number preceding
-                        elif multiplicand == None:
-                            start = current = multiplier = multiplicand = None
-                            continue
-                        else: 
-                            print ("multiplying " + str(multiplier) + ' ' + str(multiplicand))
-                            print ("MUL EXPRESSION: " + line[start:current])
-                            result += multiplier * multiplicand
-                            start = current = multiplier = multiplicand = None
-                            continue
-            # move pointer
-            current += 1
-    print (result)
+                        # if you have a ')' before either number is set, it'll throw error
+                        # TypeError: can only concatenate str (not "NoneType") to str
+                        else:
+                            print("FAILED: [" + char + "] " + line[start:i + 1])
+                            start = multiplier = multiplicand = None
+                    else:
+                        print("FAILED: [" + char + "] " + line[start:i + 1])
+                        start = multiplier = multiplicand = None
+        print (result)
 
 # day03_a('day03_input_small.txt')
 day03_a('day03_input.txt')
