@@ -92,3 +92,24 @@ def day04_a(input):
     print (total_xmas_found)
 
 day04_a('day04_input.txt')
+
+def day04_b(input):
+    matrix = []
+    with open(input) as file:
+        for line in file:
+            matrix.append(list(line.strip()))
+
+    height = len(matrix)
+    width = len(matrix[0])
+
+    total_xmas_found = 0
+
+    for row in range(height):
+        for col in range(width):
+            # check if each character is A until hit, then check diagonals for MAS
+            if matrix[row][col] == 'A' and col >= 1 and col <= width - 2 and row >= 1 and row <= height - 2:
+                if ((matrix[row - 1][col - 1] == 'M' and matrix[row + 1][col + 1] == 'S') or (matrix[row - 1][col - 1] == 'S' and matrix[row + 1][col + 1] == 'M')) and ((matrix[row - 1][col + 1] == 'M' and matrix[row + 1][col - 1] == 'S') or (matrix[row - 1][col + 1] == 'S' and matrix[row + 1][col - 1] == 'M')):
+                    total_xmas_found += 1
+    print (total_xmas_found)
+
+day04_b('day04_input.txt')
